@@ -23,6 +23,13 @@ dependencies {
     // H2 Database
     runtimeOnly "com.h2database:h2"
     
+    // Lombok
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+    
+    // Jackson for JSON processing
+    implementation "com.fasterxml.jackson.core:jackson-databind"
+    
     testImplementation "org.springframework.boot:spring-boot-starter-test"
 }
 
