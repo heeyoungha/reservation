@@ -7,6 +7,7 @@ import lombok.Value;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Value
 @Builder
@@ -32,6 +33,12 @@ public class FlightSearchResponse {
     Integer infants;
     
     String apiProvider;
+    
+    String status;
+    
+    String message;
+    
+    List<FlightOffer> flightOffers;
     
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime searchTimestamp;
@@ -65,5 +72,32 @@ public class FlightSearchResponse {
             .totalPassengers(entity.getTotalPassengers())
             .internationalFlight(entity.isInternationalFlight())
             .build();
+    }
+    
+    @Value
+    @Builder
+    public static class FlightOffer {
+        String id;
+        String airline;
+        String flightNumber;
+        String originLocationCode;
+        String destinationLocationCode;
+        String departureDate;
+        String departureTime;
+        String arrivalDate;
+        String arrivalTime;
+        String duration;
+        String cabinClass;
+        Price price;
+        Integer availableSeats;
+    }
+    
+    @Value
+    @Builder
+    public static class Price {
+        String currency;
+        Double total;
+        Double base;
+        Double taxes;
     }
 }
