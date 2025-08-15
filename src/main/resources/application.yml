@@ -24,3 +24,26 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
+
+# API 설정
+amadeus:
+  client-id: ${AMADEUS_CLIENT_ID:your-amadeus-client-id}
+  client-secret: ${AMADEUS_CLIENT_SECRET:your-amadeus-client-secret}
+  base-url: https://test.api.amadeus.com/v2
+  auth-url: https://test.api.amadeus.com/v1/security/oauth2/token
+  timeout: 10000
+  max-retries: 3
+
+sabre:
+  client-id: ${SABRE_CLIENT_ID:your-sabre-client-id}
+  client-secret: ${SABRE_CLIENT_SECRET:your-sabre-client-secret}
+  base-url: https://api.test.sabre.com
+  auth-url: https://api.test.sabre.com/v2/auth/token
+  timeout: 15000
+  max-retries: 3
+
+# 로깅 설정
+logging:
+  level:
+    com.example.flightbooking: DEBUG
+    org.springframework.web.reactive.function.client: DEBUG
