@@ -21,8 +21,11 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.springframework.boot:spring-boot-starter-webflux"
     
-    // H2 Database
+    // H2 Database (for local development)
     runtimeOnly "com.h2database:h2"
+    
+    // MySQL Database (for production)
+    runtimeOnly "mysql:mysql-connector-java:8.0.33"
     
     // Lombok
     compileOnly "org.projectlombok:lombok"
@@ -30,6 +33,12 @@ dependencies {
     
     // Jackson for JSON processing
     implementation "com.fasterxml.jackson.core:jackson-databind"
+    
+    // Swagger/OpenAPI 3
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0"
+    
+    // Thymeleaf for view templates
+    implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
     
     // dotenv for .env file support
     implementation "me.paulschwarz:spring-dotenv:4.0.0"

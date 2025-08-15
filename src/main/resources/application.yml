@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   application:
@@ -47,3 +47,18 @@ logging:
   level:
     com.example.flightbooking: DEBUG
     org.springframework.web.reactive.function.client: DEBUG
+
+# Swagger 설정
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  info:
+    title: Flight Booking API
+    description: Amadeus(REST) 및 Sabre(SOAP) API를 연동한 모의 항공 예약 시스템
+    version: 1.0.0
+    contact:
+      name: Flight Booking Team
+      email: contact@flightbooking.com

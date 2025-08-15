@@ -60,3 +60,12 @@ application-prod.yml
 .env
 .env.local
 .env.*.local
+
+### Docker ###
+docker-compose.override.yml
+
+### IDE Workspace Files ###
+# IntelliJ IDEA workspace files (already covered by .idea/ but being explicit)
+workspace.xml
+tasks.xml
+shelf/

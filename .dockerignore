@@ -1,0 +1,39 @@
+# Gradle build artifacts
+build/
+.gradle/
+gradle-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+logs/
+
+# Docker files
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Environment files
+.env*
+
+# Database files
+*.db
+*.mv.db
+*.trace.db
+
+# Test reports
+test-results/ 
