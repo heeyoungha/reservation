@@ -78,16 +78,12 @@ public class DatabaseTestController {
     @GetMapping("/searches/validate/{id}")
     public String validateSearch(@PathVariable Long id) {
         FlightSearch search = flightSearchRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Search not found"));
-        
-        return "Search ID: " + search.getId() + "
-" +
-               "Valid Search: " + search.isValidSearch() + "
-" +
-               "Round Trip: " + search.isRoundTrip() + "
-" +
-               "Total Passengers: " + search.getTotalPassengers() + "
-" +
-               "International: " + search.isInternationalFlight();
+                .orElseThrow(() -> new RuntimeException("Search not found"));
+
+        return "Search ID: " + search.getId() + "\n" +
+                "Valid Search: " + search.isValidSearch() + "\n" +
+                "Round Trip: " + search.isRoundTrip() + "\n" +
+                "Total Passengers: " + search.getTotalPassengers() + "\n" +
+                "International: " + search.isInternationalFlight();
     }
 }
