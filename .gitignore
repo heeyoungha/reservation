@@ -45,6 +45,7 @@ build/
 ### Logs ###
 *.log
 logs/
+nginx-logs/
 
 ### H2 Database ###
 *.db
@@ -60,12 +61,48 @@ application-prod.yml
 .env
 .env.local
 .env.*.local
+env-msa.example
 
 ### Docker ###
 docker-compose.override.yml
+# Docker volumes (데이터 지속성을 위한 볼륨)
+mysql-data/
+search_mysql_data/
+booking_mysql_data/
+
+### SSL Certificates and Keys ###
+ssl/
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+
+### MSA Services ###
+# 각 마이크로서비스의 빌드 파일들
+flight-search-service/build/
+flight-search-service/target/
+flight-search-service/.gradle/
+flight-booking-service/build/
+flight-booking-service/target/
+flight-booking-service/.gradle/
+
+# 각 마이크로서비스의 로그
+flight-search-service/logs/
+flight-booking-service/logs/
+
+# 각 마이크로서비스의 환경설정 (민감한 정보 포함 가능)
+flight-search-service/.env*
+flight-booking-service/.env*
+
+### API Gateway ###
+api-gateway/logs/
+api-gateway/conf.d/
 
 ### IDE Workspace Files ###
 # IntelliJ IDEA workspace files (already covered by .idea/ but being explicit)
 workspace.xml
 tasks.xml
 shelf/
+
+study.pem

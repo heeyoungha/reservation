@@ -1,0 +1,66 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: flight-search-service
+  
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:flight_search_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:flight_user}
+    password: ${DB_PASSWORD:flight_password}
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
+
+# API 설정
+amadeus:
+  client-id: ${AMADEUS_CLIENT_ID:your-amadeus-client-id}
+  client-secret: ${AMADEUS_CLIENT_SECRET:your-amadeus-client-secret}
+  base-url: https://test.api.amadeus.com/v2
+  auth-url: https://test.api.amadeus.com/v1/security/oauth2/token
+  timeout: 10000
+  max-retries: 3
+
+sabre:
+  client-id: ${SABRE_CLIENT_ID:your-sabre-client-id}
+  client-secret: ${SABRE_CLIENT_SECRET:your-sabre-client-secret}
+  base-url: https://api.test.sabre.com
+  auth-url: https://api.test.sabre.com/v2/auth/token
+  timeout: 15000
+  max-retries: 3
+
+# 로깅 설정
+logging:
+  level:
+    com.example.flightsearch: INFO
+    org.springframework.web.reactive.function.client: WARN
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Swagger 설정
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  info:
+    title: Flight Search Service API
+    description: 항공편 검색 마이크로서비스
+    version: 1.0.0 

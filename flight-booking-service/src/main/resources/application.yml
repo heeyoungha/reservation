@@ -1,0 +1,54 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: flight-booking-service
+  
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:flight_booking_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:flight_user}
+    password: ${DB_PASSWORD:flight_password}
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
+
+# External Service URLs
+services:
+  flight-search:
+    url: ${SEARCH_SERVICE_URL:http://localhost:8081}
+
+# 로깅 설정
+logging:
+  level:
+    com.example.flightbooking: INFO
+    org.springframework.web.reactive.function.client: WARN
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Swagger 설정
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  info:
+    title: Flight Booking Service API
+    description: 항공편 예약 마이크로서비스
+    version: 1.0.0 
