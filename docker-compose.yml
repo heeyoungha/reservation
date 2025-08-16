@@ -28,6 +28,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: flight-booking-app:prod  # 프로덕션에서 사용할 이미지 태그
     container_name: flight-booking-spring
     restart: unless-stopped
     environment:

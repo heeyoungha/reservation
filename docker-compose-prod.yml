@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # MySQL 데이터베이스 (프로덕션)
+  mysql-db:
+    image: mysql:8.0
+    container_name: flight-booking-mysql-prod
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"  # 프로덕션에서는 외부 노출하지 않을 수도 있음
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - flight-booking-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+    command: --default-authentication-plugin=mysql_native_password
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+  # Spring Boot 애플리케이션 (프로덕션)
+  flight-booking-app:
+    image: flight-booking-app:prod
+    container_name: flight-booking-spring-prod
+    restart: always
+    environment:
+      # 데이터베이스 설정
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      # API 키 설정
+      AMADEUS_CLIENT_ID: ${AMADEUS_CLIENT_ID}
+      AMADEUS_CLIENT_SECRET: ${AMADEUS_CLIENT_SECRET}
+    ports:
+      - "8080:8080"  # 내부 네트워크에서만 접근
+    volumes:
+      - app_logs_prod:/app/logs
+      - ./logs:/app/logs  # 호스트와 로그 공유
+    networks:
+      - flight-booking-network
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+
+  # Nginx 리버스 프록시 (프로덕션 - HTTPS)
+  nginx:
+    image: nginx:alpine
+    container_name: flight-booking-nginx-prod
+    restart: always
+    ports:
+      - "80:80"     # HTTP (HTTPS로 리다이렉트)
+      - "443:443"   # HTTPS
+    volumes:
+      - ./nginx-prod.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt/live/hadley1130.shop:/etc/letsencrypt/live/hadley1130.shop:ro  # SSL 인증서
+      - /etc/letsencrypt/archive/hadley1130.shop:/etc/letsencrypt/archive/hadley1130.shop:ro  # SSL 아카이브
+      - ./nginx-logs:/var/log/nginx  # Nginx 로그
+      - /var/run/docker.sock:/tmp/docker.sock:ro  # Docker 소켓 (선택사항)
+    networks:
+      - flight-booking-network
+    depends_on:
+      - flight-booking-app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.2'
+
+
+
+volumes:
+  mysql_data_prod:
+    driver: local
+  app_logs_prod:
+    driver: local
+
+networks:
+  flight-booking-network:
+    driver: bridge
