@@ -50,6 +50,7 @@ services:
     build:
       context: ./flight-search-service
       dockerfile: Dockerfile
+    image: flight-search-service:latest
     container_name: flight-search-service
     ports:
       - "8081:8081"
@@ -77,6 +78,7 @@ services:
     build:
       context: ./flight-booking-service
       dockerfile: Dockerfile
+    image: flight-booking-service:latest
     container_name: flight-booking-service
     ports:
       - "8082:8082"

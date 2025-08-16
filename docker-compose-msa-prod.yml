@@ -1,0 +1,165 @@
+version: '3.8'
+
+services:
+  # MySQL for Search Service (Production)
+  search-db:
+    image: mysql:8.0
+    container_name: flight-search-mysql-prod
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: flight_search_db
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - search_mysql_data_prod:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - flight-msa-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+    command: --default-authentication-plugin=mysql_native_password
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+  # MySQL for Booking Service (Production)
+  booking-db:
+    image: mysql:8.0
+    container_name: flight-booking-mysql-prod
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: flight_booking_db
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - booking_mysql_data_prod:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - flight-msa-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+    command: --default-authentication-plugin=mysql_native_password
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+  # Flight Search Service (Production)
+  flight-search-service:
+    image: flight-search-service:latest
+    container_name: flight-search-service-prod
+    restart: always
+    environment:
+      DB_HOST: search-db
+      DB_NAME: flight_search_db
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      AMADEUS_CLIENT_ID: ${AMADEUS_CLIENT_ID}
+      AMADEUS_CLIENT_SECRET: ${AMADEUS_CLIENT_SECRET}
+    volumes:
+      - search_logs_prod:/app/logs
+      - ./logs/search:/app/logs
+    networks:
+      - flight-msa-network
+    depends_on:
+      search-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: '0.8'
+
+  # Flight Booking Service (Production)
+  flight-booking-service:
+    image: flight-booking-service:latest
+    container_name: flight-booking-service-prod
+    restart: always
+    environment:
+      DB_HOST: booking-db
+      DB_NAME: flight_booking_db
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SEARCH_SERVICE_URL: ${SEARCH_SERVICE_URL}
+    volumes:
+      - booking_logs_prod:/app/logs
+      - ./logs/booking:/app/logs
+    networks:
+      - flight-msa-network
+    depends_on:
+      booking-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: '0.8'
+
+  # Nginx API Gateway (Production - HTTPS)
+  nginx:
+    image: nginx:alpine
+    container_name: flight-msa-nginx-prod
+    restart: always
+    ports:
+      - "80:80"     # HTTP (HTTPS로 리다이렉트)
+      - "443:443"   # HTTPS
+    volumes:
+      - ./nginx-msa-prod.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt/live/hadley1130.shop:/etc/letsencrypt/live/hadley1130.shop:ro  # SSL 인증서
+      - /etc/letsencrypt/archive/hadley1130.shop:/etc/letsencrypt/archive/hadley1130.shop:ro  # SSL 아카이브
+      - ./nginx-logs:/var/log/nginx  # Nginx 로그
+      - ./flight-booking/src/main/resources/static:/usr/share/nginx/html:ro  # 정적 파일
+    networks:
+      - flight-msa-network
+    depends_on:
+      flight-search-service:
+        condition: service_healthy
+      flight-booking-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.2'
+
+volumes:
+  search_mysql_data_prod:
+    driver: local
+  booking_mysql_data_prod:
+    driver: local
+  search_logs_prod:
+    driver: local
+  booking_logs_prod:
+    driver: local
+
+networks:
+  flight-msa-network:
+    driver: bridge
